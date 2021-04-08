@@ -25,7 +25,7 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
     val foundStudent = studentList.find(_.id == userId)
     foundStudent match {
       case Some(item) => Ok(Json.toJson(item)).as("application/json")
-      case None => Ok("not found")
+      case None => Ok("Student with this Id doesn't exist.")
     }
   }
 
@@ -50,9 +50,12 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
 
   }
 
-  def updateStudent(userId : Int) = Action{ implicit request =>
+  def updateStudent(userId : Int) = Action { implicit request =>
     val content = request.body
     val jsonObject = content.asJson
+
+    val foundStudent = studentList.find(_.id == userId)
+    val index = studentList.indexOf(foundStudent.get)
 
     val studentData: Option[Student] =
       jsonObject.flatMap(
@@ -62,7 +65,8 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
     studentData match {
       case Some(newItem) =>
         val toBeAdded = Student(newItem.id,newItem.name,newItem.course)
-        studentList.update(userId-1,toBeAdded)
+
+        studentList.update(index,toBeAdded)
         Created(Json.toJson(toBeAdded))
       case None =>
         BadRequest
@@ -72,11 +76,12 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
   def removeStudent(userId : Int)= Action {
 
     val foundStudent = studentList.find(_.id == userId)
-    studentList.remove(userId-1)
+    val index = studentList.indexOf(foundStudent.get)
+    studentList.remove(index)
     foundStudent match {
       case Some(item) =>
         Ok(Json.toJson(item))
-      case None => Ok("not found")
+      case None => Ok("Student with this Id doesn't exist.")
     }
   }
 
