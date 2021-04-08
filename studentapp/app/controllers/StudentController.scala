@@ -12,9 +12,9 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
   implicit val StudentFormat = Json.format[Student]
 
   private val studentList = new ListBuffer[Student]()
-  studentList += Student(1, "a", "maths")
-  studentList += Student(2, "b", "physics")
-  studentList += Student(3, "c", "chem")
+  studentList += Student(1, "a", "maths",Set("math","hist"),Map("math"->10,"hist"->20))
+  studentList += Student(2, "b", "physics",Set("math","hist"),Map("math"->13,"hist"->22))
+  studentList += Student(3, "c", "chem",Set("math","hist"),Map("math"->11,"hist"->50))
 
   def students() = Action { implicit request: Request[AnyContent] =>
     Ok(Json.toJson(studentList)).as("application/json")
@@ -40,7 +40,7 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
 
     studentData match {
       case Some(newItem) =>
-              val toBeAdded = Student(newItem.id,newItem.name,newItem.course)
+              val toBeAdded = Student(newItem.id,newItem.name,newItem.course,newItem.subjects,newItem.marks)
               studentList += toBeAdded
               Created(Json.toJson(toBeAdded))
       case None =>
@@ -64,7 +64,7 @@ class StudentController @Inject()(val controllerComponents: ControllerComponents
 
     studentData match {
       case Some(newItem) =>
-        val toBeAdded = Student(newItem.id,newItem.name,newItem.course)
+        val toBeAdded = Student(newItem.id,newItem.name,newItem.course,newItem.subjects,newItem.marks)
 
         studentList.update(index,toBeAdded)
         Created(Json.toJson(toBeAdded))
